@@ -15,44 +15,43 @@ def log(msg):
 
 
 # -------------------------
-# PIPELINE (WITH STRUCTURE)
+# PIPELINE
 # -------------------------
 def run_pipeline(rss_url):
     LOG.clear()
 
-    log("state:starting_pipeline")
-    log(f"rss:{rss_url}")
+    log("🚀 Pipeline started")
+    log(f"📡 RSS: {rss_url}")
 
     try:
         from downloader import ingest_rss, run_downloads, episodes
         from transcriber import run_transcriptions
         from main import zip_and_cleanup
 
-        log("state:fetch_rss")
+        log("📥 Fetching RSS...")
         ingest_rss(rss_url)
 
-        total = len(episodes)
-        log(f"total_episodes:{total}")
+        log(f"📊 Total episodes: {len(episodes)}")
 
-        log("state:downloading")
+        log("⬇️ Starting downloads...")
         run_downloads(log)
 
-        log("state:transcribing")
+        log("📝 Starting transcription...")
         run_transcriptions(log)
 
-        log("state:zipping")
+        log("📦 Zipping files...")
         zip_and_cleanup(log)
 
-        log("state:done")
+        log("✅ DONE")
 
     except Exception as e:
-        log("state:error")
+        log("❌ ERROR:")
         log(str(e))
         log(traceback.format_exc())
 
 
 # -------------------------
-# HOME UI (LIVE DASHBOARD)
+# HOME (LIVE UI)
 # -------------------------
 @app.route("/")
 def home():
@@ -64,7 +63,7 @@ def home():
         <button type="submit">Start</button>
     </form>
 
-    <h2>Status</h2>
+    <h2>Live Logs</h2>
     <pre id="logbox"></pre>
 
     <script>
@@ -91,7 +90,7 @@ def run():
     if not rss:
         return "No RSS provided"
 
-    print("🔥 START")
+    print("🔥 JOB STARTED")
 
     thread = threading.Thread(target=run_pipeline, args=(rss,))
     thread.daemon = True
@@ -101,7 +100,7 @@ def run():
 
 
 # -------------------------
-# SSE STREAM (LIVE DATA)
+# SSE STREAM
 # -------------------------
 @app.route("/stream")
 def stream():
@@ -135,8 +134,11 @@ def download():
 
 
 # -------------------------
-# START SERVER
+# START SERVER (Koyeb FIXED)
 # -------------------------
 if __name__ == "__main__":
-    print("🚀 LIVE SERVER STARTED")
-    app.run(host="0.0.0.0", port=5000, threaded=True)
+    print("🚀 LIVE SERVER STARTED (Koyeb-ready)")
+
+    port = int(os.environ.get("PORT", 8000))  # ✅ FIX HERE
+
+    app.run(host="0.0.0.0", port=port, threaded=True)
