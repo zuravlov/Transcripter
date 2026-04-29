@@ -7,19 +7,25 @@ TXT_DIR = os.path.join(BASE_OUTPUT, "txt")
 os.makedirs(TXT_DIR, exist_ok=True)
 
 
-def run_transcriptions():
-    for file in os.listdir(MP3_DIR):
-        if not file.endswith(".mp3"):
-            continue
+def run_transcriptions(log=None):
+    files = [f for f in os.listdir(MP3_DIR) if f.endswith(".mp3")]
+    total = len(files)
 
-        txt_file = file.replace(".mp3", ".txt")
-        txt_path = os.path.join(TXT_DIR, txt_file)
+    if total == 0:
+        msg = "⚠️ No MP3 files found to transcribe"
+        print(msg)
+        if log:
+            log(msg)
+        return
 
-        if os.path.exists(txt_path):
-            continue
+    for i, file in enumerate(files, start=1):
+        msg = f"📝 Transcribe {i}/{total}"
+        print(msg)
 
-        print("📝 Transcribing:", file)
+        if log:
+            log(msg)
 
-        # Placeholder (real Whisper would go here)
+        txt_path = os.path.join(TXT_DIR, file + ".txt")
+
         with open(txt_path, "w", encoding="utf-8") as f:
-            f.write(f"Transcript for {file}")
+            f.write("fake transcript for " + file)
