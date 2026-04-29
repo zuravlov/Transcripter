@@ -8,10 +8,16 @@ MP3_DIR = os.path.join(BASE_OUTPUT, "mp3")
 os.makedirs(MP3_DIR, exist_ok=True)
 
 session = requests.Session()
+session.headers.update({
+    "User-Agent": "Mozilla/5.0"
+})
 
 episodes = []
 
 
+# -------------------------
+# RSS INGEST (THIS WAS MISSING)
+# -------------------------
 def ingest_rss(rss_url):
     episodes.clear()
 
@@ -26,22 +32,32 @@ def ingest_rss(rss_url):
             continue
 
         url = enc.get("url")
+
         uid = md5((title + url).encode()).hexdigest()
         file = f"{uid}.mp3"
 
         episodes.append((uid, url, file))
 
 
-def run_downloads():
-    for uid, url, file in episodes:
+# -------------------------
+# DOWNLOAD WITH PROGRESS
+# -------------------------
+def run_downloads(log=None):
+    total = len(episodes)
+
+    for i, (uid, url, file) in enumerate(episodes, start=1):
         path = os.path.join(MP3_DIR, file)
 
         if os.path.exists(path):
             continue
 
-        print("⬇️ Downloading:", file)
+        msg = f"⬇️ Download {i}/{total}"
+        print(msg)
 
-        r = session.get(url, stream=True)
+        if log:
+            log(msg)
+
+        r = session.get(url, stream=True, timeout=60)
 
         with open(path, "wb") as f:
             for chunk in r.iter_content(1024 * 1024):
