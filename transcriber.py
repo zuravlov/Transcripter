@@ -7,12 +7,11 @@ TXT_DIR = os.path.join(BASE_OUTPUT, "txt")
 
 os.makedirs(TXT_DIR, exist_ok=True)
 
-# Load model once (important for speed)
 model = WhisperModel("base", device="cpu", compute_type="int8")
 
 
 def run_transcriptions(log=None):
-    files = [f for f in os.listdir(MP3_DIR) if f.endswith(".mp3")]
+    files = sorted([f for f in os.listdir(MP3_DIR) if f.endswith(".mp3")])
     total = len(files)
 
     if total == 0:
@@ -22,9 +21,14 @@ def run_transcriptions(log=None):
 
     for i, file in enumerate(files, start=1):
         audio_path = os.path.join(MP3_DIR, file)
-        txt_path = os.path.join(TXT_DIR, file + ".txt")
 
-        msg = f"📝 Transcribing {i}/{total}: {file}"
+        # -------------------------
+        # NUMBERED OUTPUT FILE
+        # -------------------------
+        txt_filename = f"{i:03d}_{file.replace('.mp3', '')}.txt"
+        txt_path = os.path.join(TXT_DIR, txt_filename)
+
+        msg = f"📝 Transcribing {i}/{total}: {txt_filename}"
         print(msg)
 
         if log:
